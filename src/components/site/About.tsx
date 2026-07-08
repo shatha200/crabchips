@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import about from "@/assets/about.jpg";
+import aboutVideo from "@/assets/about.mp4.asset.json";
 
 const CHIPS = ["Fruits de Mer", "Grillades au Feu de Bois", "Pasta et Pizza", "Traiteur et Sur Place"];
 
@@ -44,7 +44,14 @@ export function About() {
         >
           <div className="absolute -inset-2 rounded-3xl bg-[#0A6EBD] opacity-30 blur-2xl" />
           <div className="relative overflow-hidden rounded-3xl border-2 border-[#0A6EBD] shadow-[0_0_60px_-10px_rgba(10,110,189,0.6)]">
-            <img src={about} alt="Crab & Chips" className="h-full w-full object-cover" loading="lazy" />
+            <video
+              src={aboutVideo.url}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            />
           </div>
         </motion.div>
       </div>
