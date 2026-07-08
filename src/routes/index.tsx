@@ -22,11 +22,11 @@ export const Route = createFileRoute("/")({
         content:
           "Crab & Chips, maison marine en Tunisie : fruits de mer frais, grillades au feu, pasta et pizzas généreuses. Commandez sur WhatsApp.",
       },
-      { property: "og:title", content: "Crab & Chips — La mer, servie généreuse" },
+      { property: "og:title", content: "Crab & Chips — Fruits de mer, grillades, pasta & pizza en Tunisie" },
       {
         property: "og:description",
         content:
-          "Fruits de mer, grillades, pasta et pizzas — plateaux généreux et spécialités Kerkennaises.",
+          "Crab & Chips, maison marine en Tunisie : fruits de mer frais, grillades au feu, pasta et pizzas généreuses. Commandez sur WhatsApp.",
       },
       { property: "og:type", content: "restaurant" },
     ],

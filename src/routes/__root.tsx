@@ -77,18 +77,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Crab & Chips — Fruits de mer & grillades en Tunisie" },
+      { title: "Crab & Chips — Fruits de mer, grillades, pasta & pizza en Tunisie" },
       {
         name: "description",
-        content: "Maison marine spécialisée en fruits de mer, grillades, pasta et pizzas. Commandez sur WhatsApp.",
+        content: "Crab & Chips, maison marine en Tunisie : fruits de mer frais, grillades au feu, pasta et pizzas généreuses. Commandez sur WhatsApp.",
       },
       { name: "author", content: "Crab & Chips" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Crab & Chips — Fruits de mer, grillades, pasta & pizza en Tunisie" },
+      { name: "twitter:title", content: "Crab & Chips — Fruits de mer, grillades, pasta & pizza en Tunisie" },
+      { property: "og:description", content: "Crab & Chips, maison marine en Tunisie : fruits de mer frais, grillades au feu, pasta et pizzas généreuses. Commandez sur WhatsApp." },
+      { name: "twitter:description", content: "Crab & Chips, maison marine en Tunisie : fruits de mer frais, grillades au feu, pasta et pizzas généreuses. Commandez sur WhatsApp." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6cf6296e-4453-4fe8-9213-b0608bd2aa44/id-preview-9642d155--32153a2a-604d-424b-8c82-485f9c0a153c.lovable.app-1783519275176.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6cf6296e-4453-4fe8-9213-b0608bd2aa44/id-preview-9642d155--32153a2a-604d-424b-8c82-485f9c0a153c.lovable.app-1783519275176.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
