@@ -2,6 +2,12 @@ import { motion } from "framer-motion";
 import { REVIEWS, CONTACT } from "@/lib/site-data";
 import { Stars, StarsDark } from "./Stars";
 
+function maskName(name: string) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 1) + "***";
+  return parts[0] + " " + parts.slice(1).map((p) => p[0] + ".").join(" ");
+}
+
 export function Reviews() {
   return (
     <section id="reviews" className="relative bg-white py-20 sm:py-28">
@@ -39,7 +45,7 @@ export function Reviews() {
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="font-display font-black">{r.name}</div>
+                    <div className="font-display font-black">{maskName(r.name)}</div>
                     <div className={`text-xs ${i % 2 === 1 ? "text-white/70" : "text-slate-500"}`}>
                       {r.meta}
                     </div>

@@ -84,47 +84,47 @@ export function MenuSection() {
           ))}
         </div>
 
-        {/* Grid */}
+        {/* List */}
         <motion.div
           key={tab + q + sort}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-6 flex flex-col gap-3"
         >
           {items.map((it) => (
             <article
               key={it.name}
-              className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-[#0A6EBD] hover:shadow-lg"
+              className="group flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-[#0A6EBD] hover:shadow-md sm:flex-row sm:items-center"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="font-display text-lg font-black text-[#06263B]">{it.name}</h3>
-                  {it.ar && (
-                    <div className="mt-1 text-sm text-slate-500" dir="rtl">
-                      {it.ar}
-                    </div>
-                  )}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3 sm:items-center">
+                  <h3 className="font-display text-base font-black text-[#06263B] sm:text-lg">{it.name}</h3>
+                  <div className="shrink-0 rounded-lg bg-[#0A6EBD] px-3 py-1 font-display text-sm font-black text-white">
+                    {it.price.toFixed(3)} DT
+                  </div>
                 </div>
-                <div className="shrink-0 rounded-lg bg-[#0A6EBD] px-3 py-1.5 font-display text-sm font-black text-white">
-                  {it.price.toFixed(3)} DT
-                </div>
+                {it.ar && (
+                  <div className="mt-1 text-sm text-slate-500" dir="rtl">
+                    {it.ar}
+                  </div>
+                )}
+                {it.desc && (
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600">{it.desc}</p>
+                )}
               </div>
-              {it.desc && (
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">{it.desc}</p>
-              )}
               <a
                 href={waMessage(`Bonjour, je souhaite commander : ${it.name} (${it.price.toFixed(3)} DT).`)}
                 target="_blank"
                 rel="noreferrer"
-                className="btn-primary mt-4 self-start"
+                className="btn-primary shrink-0 self-start sm:self-center"
               >
                 <MessageCircle size={16} /> Commander
               </a>
             </article>
           ))}
           {items.length === 0 && (
-            <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
               Aucun plat ne correspond à votre recherche.
             </div>
           )}
