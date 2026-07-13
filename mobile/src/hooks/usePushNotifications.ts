@@ -6,23 +6,26 @@ import Constants from "expo-constants";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+if (Platform.OS !== "web") {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 // Registers this device for push notifications and stores the Expo push
 // token in Supabase (push_tokens table) so an Edge Function can send to it
 // on order-status changes. Call this once near the app root, after login.
+// No-ops on web: Expo push tokens are a native-only concept there.
 export function usePushNotifications() {
   const { session } = useAuth();
   const registered = useRef(false);
 
   useEffect(() => {
-    if (!session || registered.current) return;
+    if (Platform.OS === "web" || !session || registered.current) return;
     registered.current = true;
 
     (async () => {

@@ -3,13 +3,13 @@ import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
-import { getOrder, subscribeToOrder } from "../../../src/services/orders";
-import { getReviewForOrder } from "../../../src/services/reviews";
-import { useAppTheme } from "../../../src/contexts/ThemeContext";
-import { StatusBadge, LoadingSpinner, Card } from "../../../src/components/Common";
-import { Button } from "../../../src/components/Button";
-import { spacing, typography, orderStatusMeta, brand } from "../../../src/lib/theme";
-import { OrderStatus } from "../../../src/types/database";
+import { getOrder, subscribeToOrder } from "../../../../src/services/orders";
+import { getReviewForOrder } from "../../../../src/services/reviews";
+import { useAppTheme } from "../../../../src/contexts/ThemeContext";
+import { StatusBadge, LoadingSpinner, Card } from "../../../../src/components/Common";
+import { Button } from "../../../../src/components/Button";
+import { spacing, typography, orderStatusMeta, brand } from "../../../../src/lib/theme";
+import { OrderStatus } from "../../../../src/types/database";
 
 const TIMELINE_STEPS: OrderStatus[] = ["pending", "accepted", "preparing", "ready", "out_for_delivery", "delivered"];
 
