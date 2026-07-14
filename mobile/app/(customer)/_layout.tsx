@@ -1,8 +1,9 @@
 import React from "react";
-import { Tabs } from "expo-router";
+import { Tabs, Redirect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text } from "react-native";
 import { useAppTheme } from "../../src/contexts/ThemeContext";
+import { useAuth } from "../../src/contexts/AuthContext";
 import { useCartStore } from "../../src/store/cartStore";
 import { brand } from "../../src/lib/theme";
 
@@ -25,6 +26,10 @@ function CartIcon({ color, size }: { color: string; size: number }) {
 
 export default function CustomerLayout() {
   const theme = useAppTheme();
+  const { session, loading } = useAuth();
+
+  if (loading) return null;
+  if (!session) return <Redirect href="/(auth)/login" />;
 
   return (
     <Tabs
@@ -56,8 +61,11 @@ export default function CustomerLayout() {
       <Tabs.Screen name="cart" options={{ title: "Panier", tabBarIcon: ({ color, size }) => <CartIcon color={color} size={size} /> }} />
       <Tabs.Screen name="orders" options={{ title: "Commandes", tabBarIcon: ({ color, size }) => <Ionicons name="receipt-outline" size={size} color={color} /> }} />
       <Tabs.Screen name="profile" options={{ title: "Profil", tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} /> }} />
-      {/* checkout + dish/order details are pushed from within tabs, hidden from the tab bar */}
+      {/* Hidden detail routes from the tab bar */}
       <Tabs.Screen name="checkout" options={{ href: null }} />
+      <Tabs.Screen name="dish/[id]" options={{ href: null }} />
+      <Tabs.Screen name="orders/[id]/index" options={{ href: null }} />
+      <Tabs.Screen name="orders/[id]/review" options={{ href: null }} />
     </Tabs>
   );
 }

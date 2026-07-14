@@ -1,10 +1,15 @@
 import React from "react";
-import { Tabs } from "expo-router";
+import { Tabs, Redirect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "../../src/contexts/ThemeContext";
+import { useAuth } from "../../src/contexts/AuthContext";
 
 export default function RestaurantLayout() {
   const theme = useAppTheme();
+  const { session, loading } = useAuth();
+
+  if (loading) return null;
+  if (!session) return <Redirect href="/(auth)/login" />;
 
   return (
     <Tabs

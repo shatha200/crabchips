@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, ScrollView, Pressable, Alert, StyleSheet } from "react-native";
+import { View, Text, TextInput, ScrollView, Pressable, Alert, StyleSheet, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { useAppTheme } from "../../src/contexts/ThemeContext";
@@ -46,10 +46,21 @@ export default function ProfileScreen() {
   };
 
   const onLogout = () => {
-    Alert.alert("Déconnexion", "Voulez-vous vraiment vous déconnecter ?", [
-      { text: "Annuler", style: "cancel" },
-      { text: "Déconnexion", style: "destructive", onPress: signOut },
-    ]);
+    const performSignOut = async () => {
+      await signOut();
+    };
+
+    if (Platform.OS === "web") {
+      const confirmLogout = window.confirm("Voulez-vous vraiment vous déconnecter ?");
+      if (confirmLogout) {
+        performSignOut();
+      }
+    } else {
+      Alert.alert("Déconnexion", "Voulez-vous vraiment vous déconnecter ?", [
+        { text: "Annuler", style: "cancel" },
+        { text: "Déconnexion", style: "destructive", onPress: performSignOut },
+      ]);
+    }
   };
 
   return (
