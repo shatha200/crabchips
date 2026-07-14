@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, TextInput, Pressable, StyleSheet } from "react-native";
+import React, { useState, useMemo } from "react";
+import { View, Text, FlatList, TextInput, Pressable, ScrollView, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +29,19 @@ export default function MenuScreen() {
     queryKey: ["dishes", categoryId, search, sortBy],
     queryFn: () => getDishes(RESTAURANT_ID, { categoryId, search: search || undefined, sortBy }),
   });
+
+  // Group dishes by category if browsing everything without active search or sort filters
+  const groupedDishes = useMemo(() => {
+    if (!dishesQ.data || !categoriesQ.data) return null;
+    if (search.trim() || sortBy || categoryId) return null;
+
+    return categoriesQ.data
+      .map((cat) => {
+        const dishes = dishesQ.data.filter((d) => d.category_id === cat.id);
+        return { ...cat, dishes };
+      })
+      .filter((cat) => cat.dishes.length > 0);
+  }, [dishesQ.data, categoriesQ.data, search, sortBy, categoryId]);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -107,6 +120,33 @@ export default function MenuScreen() {
 
       {dishesQ.isLoading ? (
         <LoadingSpinner />
+      ) : groupedDishes ? (
+        <ScrollView contentContainerStyle={{ paddingBottom: spacing.xl + 20 }}>
+          {groupedDishes.length > 0 ? (
+            groupedDishes.map((cat) => (
+              <View key={cat.id} style={{ marginBottom: spacing.lg }}>
+                <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.sm }}>
+                  <Text style={[typography.h2, { color: theme.textPrimary, fontSize: 18 }]}>{cat.name}</Text>
+                  {cat.name_ar ? (
+                    <Text style={[typography.caption, { color: theme.textSecondary, fontSize: 13, marginTop: 1 }]}>
+                      {cat.name_ar}
+                    </Text>
+                  ) : null}
+                </View>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: spacing.md, paddingVertical: 4 }}
+                  data={cat.dishes}
+                  keyExtractor={(d) => d.id}
+                  renderItem={({ item }) => <DishCard dish={item} compact />}
+                />
+              </View>
+            ))
+          ) : (
+            <EmptyState title="Aucun plat trouvé" message="Le menu est vide pour le moment." />
+          )}
+        </ScrollView>
       ) : (
         <FlatList
           data={dishesQ.data ?? []}
