@@ -74,7 +74,7 @@ export default function OrderManagementScreen() {
           ListEmptyComponent={<EmptyState icon="receipt-outline" title="Aucune commande" />}
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => router.push(`/(restaurant)/order-management/${item.id}`)}
+              onPress={() => router.push(`/(restaurant)/order/${item.id}`)}
               style={[styles.card, { backgroundColor: theme.card, shadowColor: theme.shadow }]}
             >
               <View style={{ flexDirection: "row", justifyContent: "space-between" }}>

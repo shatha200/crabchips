@@ -27,6 +27,8 @@ export default function RestaurantLayout() {
       <Tabs.Screen name="statistics" options={{ title: "Statistiques", tabBarIcon: ({ color, size }) => <Ionicons name="bar-chart-outline" size={size} color={color} /> }} />
       <Tabs.Screen name="category-management" options={{ href: null }} />
       <Tabs.Screen name="dish-form/[id]" options={{ href: null }} />
+      <Tabs.Screen name="order/[id]" options={{ href: null }} />
+      <Tabs.Screen name="order-management/[id]" options={{ href: null }} />
     </Tabs>
   );
 }
