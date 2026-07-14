@@ -182,14 +182,30 @@ create table if not exists public.order_status_events (
   created_at timestamptz not null default now()
 );
 
--- Keep updated_at fresh + log every status transition automatically.
-create or replace function public.handle_order_status_change()
+-- Keep updated_at fresh automatically.
+create or replace function public.set_order_updated_at()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
   new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists on_order_update_timestamp on public.orders;
+create trigger on_order_update_timestamp
+  before update on public.orders
+  for each row execute procedure public.set_order_updated_at();
+
+-- Log every status transition automatically.
+create or replace function public.log_order_status_change()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
   if (tg_op = 'INSERT') or (old.status is distinct from new.status) then
     insert into public.order_status_events (order_id, status, changed_by)
     values (new.id, new.status, auth.uid());
@@ -199,9 +215,10 @@ end;
 $$;
 
 drop trigger if exists on_order_upsert on public.orders;
-create trigger on_order_upsert
-  before insert or update on public.orders
-  for each row execute procedure public.handle_order_status_change();
+drop trigger if exists on_order_status_change on public.orders;
+create trigger on_order_status_change
+  after insert or update on public.orders
+  for each row execute procedure public.log_order_status_change();
 
 -- ----------------------------------------------------------------------------
 -- REVIEWS (one per delivered order)

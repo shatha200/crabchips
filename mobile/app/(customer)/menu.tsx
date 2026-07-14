@@ -30,17 +30,22 @@ export default function MenuScreen() {
     queryFn: () => getDishes(RESTAURANT_ID, { categoryId, search: search || undefined, sortBy }),
   });
 
-  // Group dishes by category if browsing everything without active search or sort filters
+  // Group dishes by category if browsing without active search or sort filters
   const groupedDishes = useMemo(() => {
     if (!dishesQ.data || !categoriesQ.data) return null;
-    if (search.trim() || sortBy || categoryId) return null;
+    if (search.trim() || sortBy) return null;
 
     return categoriesQ.data
       .map((cat) => {
         const dishes = dishesQ.data.filter((d) => d.category_id === cat.id);
         return { ...cat, dishes };
       })
-      .filter((cat) => cat.dishes.length > 0);
+      .filter((cat) => {
+        if (categoryId) {
+          return cat.id === categoryId && cat.dishes.length > 0;
+        }
+        return cat.dishes.length > 0;
+      });
   }, [dishesQ.data, categoriesQ.data, search, sortBy, categoryId]);
 
   return (
