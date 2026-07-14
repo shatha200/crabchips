@@ -2,11 +2,19 @@ import React from "react";
 import { View, Text, StyleSheet, ActivityIndicator, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "../contexts/ThemeContext";
-import { radius, spacing, typography, brand, orderStatusMeta } from "../lib/theme";
+import { radius, spacing, typography, brand, orderStatusMeta, elevation, fonts } from "../lib/theme";
 import { OrderStatus } from "../types/database";
 
 // ---- Card: base rounded surface used across the app ----
-export function Card({ children, style }: { children: React.ReactNode; style?: any }) {
+export function Card({
+  children,
+  style,
+  level = "low",
+}: {
+  children: React.ReactNode;
+  style?: any;
+  level?: keyof typeof elevation;
+}) {
   const theme = useAppTheme();
   return (
     <View
@@ -16,15 +24,27 @@ export function Card({ children, style }: { children: React.ReactNode; style?: a
           borderRadius: radius.lg,
           padding: spacing.md,
           shadowColor: theme.shadow,
-          shadowOpacity: 1,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 2,
+          ...elevation[level],
         },
         style,
       ]}
     >
       {children}
+    </View>
+  );
+}
+
+// ---- Eyebrow: small uppercase label above a section title — the app's
+// recurring structural device that gives sections a consistent rhythm
+// instead of a plain unadorned header. The tick uses the teal accent.
+export function Eyebrow({ children }: { children: string }) {
+  const theme = useAppTheme();
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 2 }}>
+      <View style={{ width: 14, height: 3, borderRadius: 2, backgroundColor: theme.accent }} />
+      <Text style={[typography.eyebrow, { color: theme.accent, textTransform: "uppercase" }]}>
+        {children}
+      </Text>
     </View>
   );
 }
@@ -35,9 +55,9 @@ export function StatusBadge({ status }: { status: OrderStatus }) {
   const meta = orderStatusMeta[status] ?? { label: status, color: "textSecondary" };
   const color = meta.color === "textSecondary" ? theme.textSecondary : (brand as any)[meta.color];
   return (
-    <View style={[styles.badge, { backgroundColor: color + "22" }]}>
+    <View style={[styles.badge, { backgroundColor: color + "1E" }]}>
       <View style={[styles.dot, { backgroundColor: color }]} />
-      <Text style={[typography.caption, { color, fontWeight: "700" }]}>{meta.label}</Text>
+      <Text style={[typography.caption, { color, fontFamily: fonts.bodyBold }]}>{meta.label}</Text>
     </View>
   );
 }
@@ -81,7 +101,9 @@ export function EmptyState({
   const theme = useAppTheme();
   return (
     <View style={{ alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.sm }}>
-      <Ionicons name={icon} size={48} color={theme.textSecondary} />
+      <View style={[styles.emptyIconWrap, { backgroundColor: theme.surface }]}>
+        <Ionicons name={icon} size={30} color={theme.textSecondary} />
+      </View>
       <Text style={[typography.h3, { color: theme.textPrimary, textAlign: "center" }]}>{title}</Text>
       {message ? (
         <Text style={[typography.body, { color: theme.textSecondary, textAlign: "center" }]}>
@@ -129,4 +151,11 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   dot: { width: 6, height: 6, borderRadius: 3 },
+  emptyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

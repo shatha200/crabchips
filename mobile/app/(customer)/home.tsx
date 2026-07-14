@@ -8,8 +8,9 @@ import { useAppTheme } from "../../src/contexts/ThemeContext";
 import { getRestaurant, getCategories, getFeaturedDishes, getPopularDishes } from "../../src/services/menu";
 import { RESTAURANT_ID } from "../../src/config";
 import { DishCard } from "../../src/components/DishCard";
-import { StarRating, LoadingSpinner, ErrorState } from "../../src/components/Common";
-import { spacing, typography, radius } from "../../src/lib/theme";
+import { ScallopDivider } from "../../src/components/ScallopDivider";
+import { StarRating, LoadingSpinner, ErrorState, Eyebrow } from "../../src/components/Common";
+import { spacing, typography, radius, fonts } from "../../src/lib/theme";
 
 export default function HomeScreen() {
   const theme = useAppTheme();
@@ -37,28 +38,42 @@ export default function HomeScreen() {
       style={{ flex: 1, backgroundColor: theme.background }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => restaurantQ.refetch()} tintColor={theme.primary} />}
     >
-      {/* Restaurant header */}
-      <Image
-        source={{ uri: restaurant.cover_url ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=60" }}
-        style={{ width: "100%", height: 180 }}
-        contentFit="cover"
-      />
-      <View style={{ padding: spacing.lg, gap: 4 }}>
+      {/* Hero: cover photo, scalloped shell-edge signature divider, floating
+          rating pill, and the restaurant name set in the display face. */}
+      <View>
+        <Image
+          source={{ uri: restaurant.cover_url ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=60" }}
+          style={{ width: "100%", height: 200 }}
+          contentFit="cover"
+        />
+        <View style={styles.dividerWrap}>
+          <ScallopDivider height={18} />
+        </View>
+
+        <View style={[styles.ratingPill, { backgroundColor: theme.card, shadowColor: theme.shadow }]}>
+          <StarRating rating={restaurant.rating} size={13} />
+          <Text style={[typography.caption, { color: theme.textPrimary, fontFamily: fonts.bodyBold }]}>
+            {restaurant.rating.toFixed(1)}
+          </Text>
+        </View>
+
+        {!restaurant.is_open && (
+          <View style={[styles.closedPill, { backgroundColor: theme.error }]}>
+            <Text style={{ color: "#fff", fontFamily: fonts.bodyBold, fontSize: 12 }}>Fermé actuellement</Text>
+          </View>
+        )}
+      </View>
+
+      <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: 4 }}>
         <Text style={[typography.h1, { color: theme.textPrimary }]}>{restaurant.name}</Text>
         <Text style={[typography.body, { color: theme.textSecondary }]}>{restaurant.description}</Text>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
-          <StarRating rating={restaurant.rating} size={16} />
-          <Text style={[typography.caption, { color: theme.textSecondary }]}>
-            {restaurant.rating.toFixed(1)} ({restaurant.review_count} avis)
-          </Text>
-          {!restaurant.is_open && (
-            <Text style={[typography.caption, { color: theme.error, marginLeft: spacing.sm }]}>Fermé actuellement</Text>
-          )}
-        </View>
+        <Text style={[typography.caption, { color: theme.textSecondary, marginTop: 2 }]}>
+          {restaurant.review_count} avis
+        </Text>
       </View>
 
       {/* Search */}
-      <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.lg }}>
+      <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.lg }}>
         <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <Ionicons name="search" size={18} color={theme.textSecondary} />
           <TextInput
@@ -67,7 +82,7 @@ export default function HomeScreen() {
             value={search}
             onChangeText={setSearch}
             onSubmitEditing={submitSearch}
-            style={{ flex: 1, color: theme.textPrimary, paddingVertical: 10 }}
+            style={{ flex: 1, color: theme.textPrimary, paddingVertical: 10, fontFamily: fonts.body, fontSize: 15 }}
           />
         </View>
       </View>
@@ -75,7 +90,7 @@ export default function HomeScreen() {
       {/* Categories */}
       {categoriesQ.data && categoriesQ.data.length > 0 && (
         <View style={{ marginBottom: spacing.lg }}>
-          <SectionTitle title="Catégories" />
+          <SectionHeader eyebrow="Explorer" title="Catégories" />
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -87,7 +102,7 @@ export default function HomeScreen() {
                 onPress={() => router.push({ pathname: "/(customer)/menu", params: { categoryId: item.id } })}
                 style={[styles.categoryChip, { backgroundColor: theme.surface, borderColor: theme.border }]}
               >
-                <Text style={{ color: theme.textPrimary, fontWeight: "600" }}>{item.name}</Text>
+                <Text style={{ color: theme.textPrimary, fontFamily: fonts.bodySemiBold }}>{item.name}</Text>
               </Pressable>
             )}
           />
@@ -96,8 +111,8 @@ export default function HomeScreen() {
 
       {/* Featured */}
       {featuredQ.data && featuredQ.data.length > 0 && (
-        <View style={{ marginBottom: spacing.lg }}>
-          <SectionTitle title="Nos coups de cœur" />
+        <View style={{ marginBottom: spacing.xl }}>
+          <SectionHeader eyebrow="Sélection du chef" title="Nos coups de cœur" />
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -111,8 +126,8 @@ export default function HomeScreen() {
 
       {/* Popular */}
       {popularQ.data && popularQ.data.length > 0 && (
-        <View style={{ marginBottom: spacing.xl }}>
-          <SectionTitle title="Les plus populaires" />
+        <View style={{ marginBottom: spacing.xxl }}>
+          <SectionHeader eyebrow="Tendance" title="Les plus populaires" />
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -127,16 +142,41 @@ export default function HomeScreen() {
   );
 }
 
-function SectionTitle({ title }: { title: string }) {
+function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   const theme = useAppTheme();
   return (
-    <Text style={[typography.h3, { color: theme.textPrimary, paddingHorizontal: spacing.lg, marginBottom: spacing.sm }]}>
-      {title}
-    </Text>
+    <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.sm }}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <Text style={[typography.h2, { color: theme.textPrimary }]}>{title}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  dividerWrap: { position: "absolute", bottom: -1, left: 0, right: 0 },
+  ratingPill: {
+    position: "absolute",
+    bottom: 14,
+    right: spacing.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  closedPill: {
+    position: "absolute",
+    top: 14,
+    left: spacing.lg,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+  },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
