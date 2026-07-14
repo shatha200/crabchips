@@ -9,7 +9,7 @@ import { useAuth } from "../../src/contexts/AuthContext";
 import { Button } from "../../src/components/Button";
 import { TextField } from "../../src/components/TextField";
 import { AuthCard } from "../../src/components/AuthCard";
-import { spacing, typography } from "../../src/lib/theme";
+import { spacing } from "../../src/lib/theme";
 
 const schema = z.object({
   fullName: z.string().min(2, "Nom requis"),

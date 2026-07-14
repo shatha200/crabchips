@@ -34,7 +34,7 @@ export function TextField({ label, error, icon, style, ...props }: TextFieldProp
           {
             backgroundColor: theme.surface,
             borderColor,
-            borderWidth: focused ? 2 : 1.5,
+            borderWidth: focused ? 2 : 1,
           },
         ]}
       >

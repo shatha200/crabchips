@@ -21,13 +21,15 @@ export function DishCard({ dish, compact }: { dish: Dish; compact?: boolean }) {
         {
           backgroundColor: theme.card,
           shadowColor: theme.shadow,
+          borderColor: theme.border,
+          borderWidth: 1,
           width: compact ? 164 : "100%",
           opacity: pressed ? 0.92 : 1,
           ...elevation.low,
         },
       ]}
     >
-      <View>
+      <View style={{ overflow: "hidden", borderTopLeftRadius: radius.lg - 1, borderTopRightRadius: radius.lg - 1 }}>
         <Image
           source={{ uri: dish.image_url ?? PLACEHOLDER }}
           style={[styles.image, { height: imageHeight }]}
@@ -36,8 +38,10 @@ export function DishCard({ dish, compact }: { dish: Dish; compact?: boolean }) {
         />
 
         {!dish.is_available && (
-          <View style={styles.unavailableOverlay}>
-            <Text style={styles.unavailableText}>Indisponible</Text>
+          <View style={[styles.unavailableOverlay, { backgroundColor: "rgba(0,0,0,0.6)" }]}>
+            <View style={{ backgroundColor: theme.error, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill }}>
+              <Text style={{ color: "#fff", fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase" }}>Épuisé</Text>
+            </View>
           </View>
         )}
 
@@ -48,22 +52,27 @@ export function DishCard({ dish, compact }: { dish: Dish; compact?: boolean }) {
           </View>
         )}
 
-        {/* Price tag overlapping the image's bottom-right corner, like an
-            actual price tag rather than plain inline text. */}
-        <View style={[styles.priceTag, { backgroundColor: theme.primary, shadowColor: theme.shadow }]}>
-          <Text style={styles.priceTagText}>{dish.price.toFixed(2)} DT</Text>
-        </View>
+        {/* Price tag overlapping the image's bottom-right corner */}
+        {dish.is_available && (
+          <View style={[styles.priceTag, { backgroundColor: theme.primary, shadowColor: theme.shadow }]}>
+            <Text style={styles.priceTagText}>{dish.price.toFixed(2)} DT</Text>
+          </View>
+        )}
       </View>
 
-      <View style={{ padding: spacing.sm, paddingTop: spacing.sm + 4, borderBottomLeftRadius: radius.lg, borderBottomRightRadius: radius.lg, backgroundColor: theme.card }}>
+      <View style={{ padding: spacing.sm, paddingTop: spacing.sm + 6, borderBottomLeftRadius: radius.lg - 1, borderBottomRightRadius: radius.lg - 1, backgroundColor: theme.card, gap: 2 }}>
         <Text numberOfLines={1} style={[typography.bodyBold, { color: theme.textPrimary }]}>
           {dish.name}
         </Text>
         {dish.description ? (
-          <Text numberOfLines={2} style={[typography.caption, { color: theme.textSecondary, marginTop: 2 }]}>
+          <Text numberOfLines={1} style={[typography.caption, { color: theme.textSecondary, fontSize: 12 }]}>
             {dish.description}
           </Text>
-        ) : null}
+        ) : (
+          <Text numberOfLines={1} style={[typography.caption, { color: "transparent", fontSize: 12 }]}>
+            -
+          </Text>
+        )}
       </View>
     </Pressable>
   );
@@ -76,8 +85,6 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
   },
   unavailableOverlay: {
     position: "absolute",
@@ -85,13 +92,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.45)",
     alignItems: "center",
     justifyContent: "center",
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
   },
-  unavailableText: { color: "#fff", fontFamily: fonts.bodyBold },
   popularTag: {
     position: "absolute",
     top: spacing.xs,
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.pill,
-    shadowOpacity: 1,
+    shadowOpacity: 0.15,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,

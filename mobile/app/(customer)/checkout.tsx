@@ -58,57 +58,64 @@ export default function CheckoutScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-      <Text style={[typography.h1, { color: theme.textPrimary }]}>Livraison</Text>
+      <Text style={[typography.h1, { color: theme.textPrimary, fontSize: 26, marginBottom: spacing.xs }]}>Livraison</Text>
 
-      <View>
-        <Text style={[typography.bodyBold, { color: theme.textPrimary, marginBottom: spacing.xs }]}>Adresse de livraison</Text>
+      <View style={{ gap: spacing.xs }}>
+        <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 14 }]}>Adresse de livraison</Text>
         <TextInput
           value={address}
           onChangeText={setAddress}
           placeholder="Ex: Rue Habib Bourguiba, Tunis"
           placeholderTextColor={theme.textSecondary}
           multiline
-          style={[styles.input, { borderColor: theme.border, color: theme.textPrimary, minHeight: 60 }]}
+          style={[styles.input, { borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.card, minHeight: 70 }]}
         />
       </View>
 
-      <View>
-        <Text style={[typography.bodyBold, { color: theme.textPrimary, marginBottom: spacing.xs }]}>Numéro de téléphone</Text>
+      <View style={{ gap: spacing.xs }}>
+        <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 14 }]}>Numéro de téléphone</Text>
         <TextInput
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
           placeholder="+216 ..."
           placeholderTextColor={theme.textSecondary}
-          style={[styles.input, { borderColor: theme.border, color: theme.textPrimary }]}
+          style={[styles.input, { borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.card }]}
         />
       </View>
 
-      <View>
-        <Text style={[typography.bodyBold, { color: theme.textPrimary, marginBottom: spacing.xs }]}>Méthode de paiement</Text>
-        <Card>
-          <Text style={{ color: theme.textPrimary }}>💵 Paiement à la livraison</Text>
+      <View style={{ gap: spacing.xs }}>
+        <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 14 }]}>Méthode de paiement</Text>
+        <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingVertical: spacing.md }}>
+          <Text style={{ fontSize: 18 }}>💵</Text>
+          <Text style={[typography.bodyBold, { color: theme.textPrimary }]}>Paiement à la livraison</Text>
         </Card>
       </View>
 
-      <Card>
+      <Card style={{ gap: spacing.xs, marginTop: spacing.xs }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: spacing.xs }}>
-          <Text style={{ color: theme.textSecondary }}>Sous-total</Text>
-          <Text style={{ color: theme.textPrimary }}>{subtotal().toFixed(2)} DT</Text>
+          <Text style={[typography.caption, { color: theme.textSecondary, fontSize: 14 }]}>Sous-total</Text>
+          <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 14 }]}>{subtotal().toFixed(2)} DT</Text>
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={[typography.bodyBold, { color: theme.textPrimary }]}>Total</Text>
-          <Text style={[typography.bodyBold, { color: theme.primary }]}>{subtotal().toFixed(2)} DT</Text>
+        <View style={{ height: 1, backgroundColor: theme.border, marginVertical: spacing.xs }} />
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 16 }]}>Total</Text>
+          <Text style={[typography.h3, { color: theme.primary, fontSize: 18, fontWeight: "800" }]}>{subtotal().toFixed(2)} DT</Text>
         </View>
       </Card>
 
-      {error && <Text style={{ color: theme.error }}>{error}</Text>}
+      {error && <Text style={{ color: theme.error, fontSize: 14, textAlign: "center" }}>{error}</Text>}
 
-      <Button label="Confirmer la commande" onPress={onConfirm} loading={loading} disabled={!canSubmit} />
+      <Button label="Confirmer la commande" onPress={onConfirm} loading={loading} disabled={!canSubmit} style={{ marginTop: spacing.sm }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  input: { borderWidth: 1.5, borderRadius: radius.md, padding: spacing.md, fontSize: 15 },
+  input: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    fontSize: 15,
+  },
 });

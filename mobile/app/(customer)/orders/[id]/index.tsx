@@ -48,25 +48,44 @@ export default function OrderDetailsScreen() {
 
       {/* Status timeline */}
       {!isTerminalNegative && (
-        <Card>
+        <Card style={{ paddingVertical: spacing.lg }}>
           {TIMELINE_STEPS.map((step, i) => {
             const meta = orderStatusMeta[step];
             const done = i <= currentStepIndex;
+            const isCurrent = i === currentStepIndex;
             return (
               <View key={step} style={styles.timelineRow}>
                 <View style={styles.timelineIconCol}>
-                  <Ionicons
-                    name={done ? "checkmark-circle" : "ellipse-outline"}
-                    size={22}
-                    color={done ? brand.green : theme.textSecondary}
-                  />
+                  <View style={[
+                    styles.iconOuter,
+                    {
+                      backgroundColor: done ? (isCurrent ? brand.orange + "1A" : brand.green + "10") : theme.border + "30",
+                      borderColor: done ? (isCurrent ? brand.orange : brand.green) : theme.border,
+                      borderWidth: 1,
+                    }
+                  ]}>
+                    <Ionicons
+                      name={done ? (isCurrent ? "reload-outline" : "checkmark-sharp") : "ellipse"}
+                      size={14}
+                      color={done ? (isCurrent ? brand.orange : brand.green) : theme.textSecondary + "40"}
+                    />
+                  </View>
                   {i < TIMELINE_STEPS.length - 1 && (
                     <View style={[styles.timelineLine, { backgroundColor: i < currentStepIndex ? brand.green : theme.border }]} />
                   )}
                 </View>
-                <Text style={[typography.body, { color: done ? theme.textPrimary : theme.textSecondary, marginBottom: spacing.md }]}>
-                  {meta.label}
-                </Text>
+                <View style={{ flex: 1, paddingBottom: i < TIMELINE_STEPS.length - 1 ? spacing.md : 0, minHeight: 28, justifyContent: "center" }}>
+                  <Text style={[
+                    typography.bodyBold,
+                    {
+                      color: done ? theme.textPrimary : theme.textSecondary,
+                      fontSize: 15,
+                      fontWeight: isCurrent ? "700" : done ? "600" : "400"
+                    }
+                  ]}>
+                    {meta.label}
+                  </Text>
+                </View>
               </View>
             );
           })}
@@ -75,28 +94,28 @@ export default function OrderDetailsScreen() {
 
       {/* Items */}
       <Card>
-        <Text style={[typography.h3, { color: theme.textPrimary, marginBottom: spacing.sm }]}>Articles</Text>
+        <Text style={[typography.h3, { color: theme.textPrimary, marginBottom: spacing.md, fontSize: 16 }]}>Articles</Text>
         {order.order_items?.map((item) => (
-          <View key={item.id} style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: spacing.xs }}>
-            <Text style={{ color: theme.textPrimary }}>
+          <View key={item.id} style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: spacing.sm }}>
+            <Text style={[typography.body, { color: theme.textPrimary, fontSize: 14 }]}>
               {item.quantity}× {item.name_snapshot}
             </Text>
-            <Text style={{ color: theme.textSecondary }}>{(item.price_snapshot * item.quantity).toFixed(2)} DT</Text>
+            <Text style={[typography.body, { color: theme.textSecondary, fontSize: 14 }]}>{(item.price_snapshot * item.quantity).toFixed(2)} DT</Text>
           </View>
         ))}
         <View style={[styles.divider, { backgroundColor: theme.border }]} />
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={[typography.bodyBold, { color: theme.textPrimary }]}>Total</Text>
-          <Text style={[typography.bodyBold, { color: theme.primary }]}>{order.total.toFixed(2)} DT</Text>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 15 }]}>Total</Text>
+          <Text style={[typography.h3, { color: theme.primary, fontSize: 18, fontWeight: "800" }]}>{order.total.toFixed(2)} DT</Text>
         </View>
       </Card>
 
       {/* Delivery info */}
-      <Card>
-        <Text style={[typography.h3, { color: theme.textPrimary, marginBottom: spacing.sm }]}>Livraison</Text>
-        <Text style={{ color: theme.textSecondary }}>{order.delivery_address}</Text>
-        <Text style={{ color: theme.textSecondary, marginTop: 2 }}>{order.phone}</Text>
-        {order.note ? <Text style={{ color: theme.textSecondary, marginTop: 2 }}>Note : {order.note}</Text> : null}
+      <Card style={{ gap: 4 }}>
+        <Text style={[typography.h3, { color: theme.textPrimary, marginBottom: spacing.xs, fontSize: 16 }]}>Livraison</Text>
+        <Text style={[typography.body, { color: theme.textSecondary, fontSize: 14 }]}>{order.delivery_address}</Text>
+        <Text style={[typography.body, { color: theme.textSecondary, fontSize: 14 }]}>{order.phone}</Text>
+        {order.note ? <Text style={[typography.caption, { color: theme.textSecondary, marginTop: 4, fontStyle: "italic" }]}>Note : {order.note}</Text> : null}
       </Card>
 
       {/* Review CTA */}
@@ -108,8 +127,15 @@ export default function OrderDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  timelineRow: { flexDirection: "row", gap: spacing.sm },
-  timelineIconCol: { alignItems: "center" },
-  timelineLine: { width: 2, flex: 1, marginVertical: 2 },
+  timelineRow: { flexDirection: "row", gap: spacing.md },
+  timelineIconCol: { alignItems: "center", width: 28 },
+  timelineLine: { width: 3, flex: 1, marginVertical: 4, borderRadius: 1.5 },
   divider: { height: 1, marginVertical: spacing.sm },
+  iconOuter: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

@@ -10,7 +10,7 @@ import { RESTAURANT_ID } from "../../src/config";
 import { DishCard } from "../../src/components/DishCard";
 import { ScallopDivider } from "../../src/components/ScallopDivider";
 import { StarRating, LoadingSpinner, ErrorState, Eyebrow } from "../../src/components/Common";
-import { spacing, typography, radius, fonts } from "../../src/lib/theme";
+import { spacing, typography, radius, fonts, elevation } from "../../src/lib/theme";
 
 export default function HomeScreen() {
   const theme = useAppTheme();
@@ -50,7 +50,7 @@ export default function HomeScreen() {
           <ScallopDivider height={18} />
         </View>
 
-        <View style={[styles.ratingPill, { backgroundColor: theme.card, shadowColor: theme.shadow }]}>
+        <View style={[styles.ratingPill, { backgroundColor: theme.card, shadowColor: theme.shadow, borderColor: theme.border, borderWidth: 1 }]}>
           <StarRating rating={restaurant.rating} size={13} />
           <Text style={[typography.caption, { color: theme.textPrimary, fontFamily: fonts.bodyBold }]}>
             {restaurant.rating.toFixed(1)}
@@ -66,7 +66,7 @@ export default function HomeScreen() {
 
       <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: 4 }}>
         <Text style={[typography.h1, { color: theme.textPrimary }]}>{restaurant.name}</Text>
-        <Text style={[typography.body, { color: theme.textSecondary }]}>{restaurant.description}</Text>
+        <Text style={[typography.body, { color: theme.textSecondary, fontFamily: fonts.body, lineHeight: 20 }]}>{restaurant.description}</Text>
         <Text style={[typography.caption, { color: theme.textSecondary, marginTop: 2 }]}>
           {restaurant.review_count} avis
         </Text>
@@ -74,8 +74,8 @@ export default function HomeScreen() {
 
       {/* Search */}
       <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.lg }}>
-        <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Ionicons name="search" size={18} color={theme.textSecondary} />
+        <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
+          <Ionicons name="search-outline" size={18} color={theme.textSecondary} />
           <TextInput
             placeholder="Rechercher un plat..."
             placeholderTextColor={theme.textSecondary}
@@ -84,6 +84,13 @@ export default function HomeScreen() {
             onSubmitEditing={submitSearch}
             style={{ flex: 1, color: theme.textPrimary, paddingVertical: 10, fontFamily: fonts.body, fontSize: 15 }}
           />
+          {search.trim().length > 0 ? (
+            <Pressable onPress={() => setSearch("")} hitSlop={8}>
+              <Ionicons name="close-circle" size={18} color={theme.textSecondary} />
+            </Pressable>
+          ) : (
+            <Ionicons name="options-outline" size={18} color={theme.primary} />
+          )}
         </View>
       </View>
 
@@ -100,7 +107,7 @@ export default function HomeScreen() {
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => router.push({ pathname: "/(customer)/menu", params: { categoryId: item.id } })}
-                style={[styles.categoryChip, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                style={[styles.categoryChip, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}
               >
                 <Text style={{ color: theme.textPrimary, fontFamily: fonts.bodySemiBold }}>{item.name}</Text>
               </Pressable>
@@ -160,11 +167,11 @@ const styles = StyleSheet.create({
     right: spacing.lg,
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.pill,
-    shadowOpacity: 1,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
@@ -181,14 +188,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    borderWidth: 1.5,
-    borderRadius: radius.md,
+    borderWidth: 1,
+    borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1,
   },
   categoryChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.md + 2,
+    paddingVertical: 9,
     borderRadius: radius.pill,
     borderWidth: 1,
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
   },
 });

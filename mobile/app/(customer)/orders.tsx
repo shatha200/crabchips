@@ -35,23 +35,25 @@ export default function OrdersScreen() {
         renderItem={({ item }) => (
           <Pressable
             onPress={() => router.push(`/(customer)/orders/${item.id}`)}
-            style={[styles.card, { backgroundColor: theme.card, shadowColor: theme.shadow }]}
+            style={[styles.card, { backgroundColor: theme.card, shadowColor: theme.shadow, borderColor: theme.border }]}
           >
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <View>
-                <Text style={[typography.bodyBold, { color: theme.textPrimary }]}>#{item.short_code}</Text>
-                <Text style={[typography.caption, { color: theme.textSecondary, marginTop: 2 }]}>
+              <View style={{ gap: 2 }}>
+                <Text style={[typography.bodyBold, { color: theme.textPrimary, fontSize: 16 }]}>Commande #{item.short_code}</Text>
+                <Text style={[typography.caption, { color: theme.textSecondary }]}>
                   {format(new Date(item.created_at), "d MMM yyyy, HH:mm")}
                 </Text>
               </View>
               <StatusBadge status={item.status} />
             </View>
-            <Text style={[typography.bodyBold, { color: theme.primary, marginTop: spacing.sm }]}>
-              {item.total.toFixed(2)} DT
-            </Text>
-            <Text style={[typography.caption, { color: theme.textSecondary }]}>
-              {item.order_items?.length ?? 0} article(s)
-            </Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: spacing.sm }}>
+              <Text style={[typography.caption, { color: theme.textSecondary }]}>
+                {item.order_items?.length ?? 0} article(s)
+              </Text>
+              <Text style={[typography.price, { color: theme.primary, fontSize: 16 }]}>
+                {item.total.toFixed(2)} DT
+              </Text>
+            </View>
           </Pressable>
         )}
       />
@@ -60,5 +62,13 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.lg, padding: spacing.md, shadowOpacity: 1, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  card: {
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
 });

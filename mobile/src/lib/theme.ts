@@ -23,12 +23,12 @@ export const brand = {
 
 export const lightTheme = {
   mode: "light" as const,
-  background: "#FFFFFF",
-  surface: "#F7F7F8",
-  card: "#FFFFFF",
-  border: "#EDEDEF",
-  textPrimary: "#1F2023", // dark gray
-  textSecondary: "#6B6D75",
+  background: "#F8F9FA",     // Soft off-white to create visual depth
+  surface: "#F1F3F5",        // Light gray for input fields and headers
+  card: "#FFFFFF",           // Clean white for elevations
+  border: "#E9ECEF",         // Subtle gray for light borders
+  textPrimary: "#1A1A1C",    // Rich obsidian black
+  textSecondary: "#6C757D",  // Cool neutral gray
   primary: brand.orange,
   primaryPressed: brand.orangeDark,
   onPrimary: "#FFFFFF",
@@ -38,27 +38,27 @@ export const lightTheme = {
   errorBg: brand.redLight,
   accent: brand.teal,
   accentBg: brand.tealLight,
-  shadow: "rgba(31, 32, 35, 0.10)",
+  shadow: "rgba(0, 0, 0, 0.05)", // Soft diffuse shadow
 };
 
 export const darkTheme = {
   mode: "dark" as const,
-  background: "#131315",
-  surface: "#1C1C1F",
-  card: "#212226",
-  border: "#2C2D31",
-  textPrimary: "#F5F5F6",
-  textSecondary: "#9A9CA3",
+  background: "#08090A",     // Pure obsidian black
+  surface: "#111215",        // Soft charcoal surface
+  card: "#16171B",           // Matte card backgrounds
+  border: "#202126",         // Dark mode border
+  textPrimary: "#F8F9FA",    // Clean white text
+  textSecondary: "#8E919A",  // Dimmed text
   primary: brand.orange,
-  primaryPressed: "#FF8259",
-  onPrimary: "#1A1A1A",
-  success: "#4CAF87",
-  successBg: "#173226",
-  error: "#E77373",
-  errorBg: "#341C1C",
+  primaryPressed: "#FF8E72",
+  onPrimary: "#08090A",
+  success: brand.green,
+  successBg: "#0C2E20",
+  error: brand.red,
+  errorBg: "#371A1A",
   accent: "#4FBFC4",
   accentBg: "#173537",
-  shadow: "rgba(0, 0, 0, 0.4)",
+  shadow: "rgba(0, 0, 0, 0.35)", // Stronger dark mode shadow depth
 };
 
 export type AppTheme = typeof lightTheme;

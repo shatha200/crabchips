@@ -25,6 +25,8 @@ export function Card({
           padding: spacing.md,
           shadowColor: theme.shadow,
           ...elevation[level],
+          borderWidth: 1,
+          borderColor: theme.border,
         },
         style,
       ]}
@@ -55,9 +57,9 @@ export function StatusBadge({ status }: { status: OrderStatus }) {
   const meta = orderStatusMeta[status] ?? { label: status, color: "textSecondary" };
   const color = meta.color === "textSecondary" ? theme.textSecondary : (brand as any)[meta.color];
   return (
-    <View style={[styles.badge, { backgroundColor: color + "1E" }]}>
+    <View style={[styles.badge, { backgroundColor: color + "14", borderColor: color + "26", borderWidth: 1 }]}>
       <View style={[styles.dot, { backgroundColor: color }]} />
-      <Text style={[typography.caption, { color, fontFamily: fonts.bodyBold }]}>{meta.label}</Text>
+      <Text style={[typography.caption, { color, fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase" }]}>{meta.label}</Text>
     </View>
   );
 }
@@ -74,13 +76,14 @@ export function StarRating({
 }) {
   const theme = useAppTheme();
   return (
-    <View style={{ flexDirection: "row", gap: 2 }}>
+    <View style={{ flexDirection: "row", gap: 3 }}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Pressable key={i} disabled={!onChange} onPress={() => onChange?.(i)} hitSlop={6}>
           <Ionicons
             name={i <= Math.round(rating) ? "star" : "star-outline"}
             size={size}
             color={i <= Math.round(rating) ? brand.orange : theme.textSecondary}
+            style={{ transform: [{ scale: onChange ? 1 : 0.95 }] }}
           />
         </Pressable>
       ))}
@@ -102,11 +105,11 @@ export function EmptyState({
   return (
     <View style={{ alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.sm }}>
       <View style={[styles.emptyIconWrap, { backgroundColor: theme.surface }]}>
-        <Ionicons name={icon} size={30} color={theme.textSecondary} />
+        <Ionicons name={icon} size={30} color={theme.primary} />
       </View>
       <Text style={[typography.h3, { color: theme.textPrimary, textAlign: "center" }]}>{title}</Text>
       {message ? (
-        <Text style={[typography.body, { color: theme.textSecondary, textAlign: "center" }]}>
+        <Text style={[typography.caption, { color: theme.textSecondary, textAlign: "center", maxWidth: 240, lineHeight: 18 }]}>
           {message}
         </Text>
       ) : null}
@@ -118,7 +121,7 @@ export function EmptyState({
 export function LoadingSpinner() {
   const theme = useAppTheme();
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.background }}>
       <ActivityIndicator size="large" color={theme.primary} />
     </View>
   );
@@ -133,7 +136,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <Text style={[typography.body, { color: theme.textPrimary, textAlign: "center" }]}>{message}</Text>
       {onRetry ? (
         <Pressable onPress={onRetry}>
-          <Text style={[typography.bodyBold, { color: theme.primary }]}>Réessayer</Text>
+          <Text style={[typography.bodyBold, { color: theme.primary, textDecorationLine: "underline" }]}>Réessayer</Text>
         </Pressable>
       ) : null}
     </View>
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
+    paddingVertical: 4,
     borderRadius: radius.pill,
     alignSelf: "flex-start",
   },
@@ -157,5 +160,6 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: spacing.xs,
   },
 });
