@@ -7,10 +7,11 @@ import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAppTheme } from "../../../src/contexts/ThemeContext";
 import { getDish } from "../../../src/services/menu";
+import { getRestaurantReviews } from "../../../src/services/reviews";
 import { useCartStore } from "../../../src/store/cartStore";
 import { RESTAURANT_ID } from "../../../src/config";
 import { Button } from "../../../src/components/Button";
-import { LoadingSpinner } from "../../../src/components/Common";
+import { LoadingSpinner, Card, StarRating } from "../../../src/components/Common";
 import { spacing, typography, radius } from "../../../src/lib/theme";
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=60";
@@ -22,6 +23,10 @@ export default function DishDetailsScreen() {
   const addItem = useCartStore((s) => s.addItem);
 
   const dishQ = useQuery({ queryKey: ["dish", id], queryFn: () => getDish(id) });
+  const reviewsQ = useQuery({
+    queryKey: ["restaurant-reviews", RESTAURANT_ID],
+    queryFn: () => getRestaurantReviews(RESTAURANT_ID),
+  });
 
   if (dishQ.isLoading || !dishQ.data) return <LoadingSpinner />;
   const dish = dishQ.data;
@@ -40,7 +45,7 @@ export default function DishDetailsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View>
           <Image source={{ uri: dish.image_url ?? PLACEHOLDER }} style={{ width: "100%", height: 300 }} contentFit="cover" />
           <LinearGradient
@@ -102,6 +107,40 @@ export default function DishDetailsScreen() {
               </View>
             </View>
           )}
+
+          {/* Customer Reviews Section */}
+          <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+            <Text style={[typography.h3, { color: theme.textPrimary, fontSize: 18, marginTop: spacing.sm }]}>Avis des clients</Text>
+            {reviewsQ.isLoading ? (
+              <LoadingSpinner />
+            ) : reviewsQ.data && reviewsQ.data.length > 0 ? (
+              <View style={{ gap: spacing.sm }}>
+                {reviewsQ.data.map((rev) => (
+                  <Card key={rev.id} style={{ gap: 6, padding: spacing.md }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                      <StarRating rating={rev.rating} size={14} />
+                      <Text style={[typography.caption, { color: theme.textSecondary }]}>
+                        {new Date(rev.created_at).toLocaleDateString("fr-FR")}
+                      </Text>
+                    </View>
+                    {rev.comment ? (
+                      <Text style={[typography.body, { color: theme.textPrimary, fontSize: 14, lineHeight: 18 }]}>
+                        {rev.comment}
+                      </Text>
+                    ) : (
+                      <Text style={[typography.caption, { color: theme.textSecondary, fontStyle: "italic" }]}>
+                        Aucun commentaire laissé
+                      </Text>
+                    )}
+                  </Card>
+                ))}
+              </View>
+            ) : (
+              <Text style={[typography.body, { color: theme.textSecondary, fontStyle: "italic", paddingVertical: 10 }]}>
+                Aucun avis pour le moment
+              </Text>
+            )}
+          </View>
         </View>
       </ScrollView>
 

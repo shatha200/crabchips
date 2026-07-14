@@ -1,0 +1,17 @@
+# Set the default behavior to normalize all text files to LF line endings on commit.
+* text=auto eol=lf
+
+# Explicitly declare files that should always use LF line endings
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.config.js text eol=lf
+.gitignore text eol=lf
+.prettierrc text eol=lf
+.prettierignore text eol=lf
