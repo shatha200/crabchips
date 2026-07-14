@@ -8,8 +8,12 @@ create extension if not exists "uuid-ossp";
 -- ----------------------------------------------------------------------------
 -- ENUMS
 -- ----------------------------------------------------------------------------
+do $$ begin
 create type user_role as enum ('customer', 'restaurant_owner', 'restaurant_staff');
+exception when duplicate_object then null;
+end $$;
 
+do $$ begin
 create type order_status as enum (
   'pending',
   'accepted',
@@ -20,13 +24,18 @@ create type order_status as enum (
   'delivered',
   'cancelled'
 );
+exception when duplicate_object then null;
+end $$;
 
+do $$ begin
 create type payment_method as enum ('cash_on_delivery');
+exception when duplicate_object then null;
+end $$;
 
 -- ----------------------------------------------------------------------------
 -- PROFILES (1:1 with auth.users)
 -- ----------------------------------------------------------------------------
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   role user_role not null default 'customer',
   full_name text,
@@ -37,7 +46,7 @@ create table public.profiles (
 );
 
 -- Auto-create profile row whenever a new auth user signs up.
-create function public.handle_new_user()
+create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
@@ -54,6 +63,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
@@ -61,7 +71,7 @@ create trigger on_auth_user_created
 -- ----------------------------------------------------------------------------
 -- CUSTOMER ADDRESSES
 -- ----------------------------------------------------------------------------
-create table public.addresses (
+create table if not exists public.addresses (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   label text not null default 'Domicile',
@@ -73,7 +83,7 @@ create table public.addresses (
 -- ----------------------------------------------------------------------------
 -- RESTAURANTS
 -- ----------------------------------------------------------------------------
-create table public.restaurants (
+create table if not exists public.restaurants (
   id uuid primary key default uuid_generate_v4(),
   slug text unique not null,
   name text not null,
@@ -93,7 +103,7 @@ create table public.restaurants (
 );
 
 -- Which staff/owner accounts manage which restaurant.
-create table public.restaurant_staff (
+create table if not exists public.restaurant_staff (
   restaurant_id uuid not null references public.restaurants(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   staff_role text not null default 'staff', -- 'owner' | 'staff'
@@ -103,7 +113,7 @@ create table public.restaurant_staff (
 -- ----------------------------------------------------------------------------
 -- MENU: CATEGORIES + DISHES
 -- ----------------------------------------------------------------------------
-create table public.categories (
+create table if not exists public.categories (
   id uuid primary key default uuid_generate_v4(),
   restaurant_id uuid not null references public.restaurants(id) on delete cascade,
   name text not null,
@@ -112,7 +122,7 @@ create table public.categories (
   created_at timestamptz not null default now()
 );
 
-create table public.dishes (
+create table if not exists public.dishes (
   id uuid primary key default uuid_generate_v4(),
   restaurant_id uuid not null references public.restaurants(id) on delete cascade,
   category_id uuid references public.categories(id) on delete set null,
@@ -129,13 +139,13 @@ create table public.dishes (
   updated_at timestamptz not null default now()
 );
 
-create index idx_dishes_restaurant on public.dishes(restaurant_id);
-create index idx_dishes_category on public.dishes(category_id);
+create index if not exists idx_dishes_restaurant on public.dishes(restaurant_id);
+create index if not exists idx_dishes_category on public.dishes(category_id);
 
 -- ----------------------------------------------------------------------------
 -- ORDERS
 -- ----------------------------------------------------------------------------
-create table public.orders (
+create table if not exists public.orders (
   id uuid primary key default uuid_generate_v4(),
   short_code text not null, -- human friendly e.g. "CC-1042"
   customer_id uuid not null references public.profiles(id),
@@ -151,10 +161,10 @@ create table public.orders (
   updated_at timestamptz not null default now()
 );
 
-create index idx_orders_customer on public.orders(customer_id);
-create index idx_orders_restaurant on public.orders(restaurant_id, status);
+create index if not exists idx_orders_customer on public.orders(customer_id);
+create index if not exists idx_orders_restaurant on public.orders(restaurant_id, status);
 
-create table public.order_items (
+create table if not exists public.order_items (
   id uuid primary key default uuid_generate_v4(),
   order_id uuid not null references public.orders(id) on delete cascade,
   dish_id uuid references public.dishes(id),
@@ -164,7 +174,7 @@ create table public.order_items (
 );
 
 -- Append-only audit trail of status changes, also used to drive notifications.
-create table public.order_status_events (
+create table if not exists public.order_status_events (
   id uuid primary key default uuid_generate_v4(),
   order_id uuid not null references public.orders(id) on delete cascade,
   status order_status not null,
@@ -173,7 +183,7 @@ create table public.order_status_events (
 );
 
 -- Keep updated_at fresh + log every status transition automatically.
-create function public.handle_order_status_change()
+create or replace function public.handle_order_status_change()
 returns trigger
 language plpgsql
 security definer set search_path = public
@@ -188,6 +198,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_order_upsert on public.orders;
 create trigger on_order_upsert
   before insert or update on public.orders
   for each row execute procedure public.handle_order_status_change();
@@ -195,7 +206,7 @@ create trigger on_order_upsert
 -- ----------------------------------------------------------------------------
 -- REVIEWS (one per delivered order)
 -- ----------------------------------------------------------------------------
-create table public.reviews (
+create table if not exists public.reviews (
   id uuid primary key default uuid_generate_v4(),
   order_id uuid not null unique references public.orders(id) on delete cascade,
   customer_id uuid not null references public.profiles(id),
@@ -206,7 +217,7 @@ create table public.reviews (
 );
 
 -- Recalculate restaurant rating whenever a review is added.
-create function public.recalc_restaurant_rating()
+create or replace function public.recalc_restaurant_rating()
 returns trigger
 language plpgsql
 security definer set search_path = public
@@ -220,6 +231,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_review_insert on public.reviews;
 create trigger on_review_insert
   after insert on public.reviews
   for each row execute procedure public.recalc_restaurant_rating();
@@ -227,7 +239,7 @@ create trigger on_review_insert
 -- ----------------------------------------------------------------------------
 -- PUSH NOTIFICATION TOKENS (Expo push tokens)
 -- ----------------------------------------------------------------------------
-create table public.push_tokens (
+create table if not exists public.push_tokens (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   expo_token text not null unique,
@@ -251,7 +263,7 @@ alter table public.reviews enable row level security;
 alter table public.push_tokens enable row level security;
 
 -- helper: is this user staff/owner of a given restaurant?
-create function public.is_restaurant_staff(target_restaurant_id uuid)
+create or replace function public.is_restaurant_staff(target_restaurant_id uuid)
 returns boolean
 language sql
 security definer
@@ -265,8 +277,10 @@ $$;
 
 -- PROFILES: users manage their own row. Restaurant staff can view profiles of
 -- customers who have ordered from their restaurant (for the Customer Management screen).
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles
   for select using (id = auth.uid());
+drop policy if exists "profiles_select_by_restaurant_staff" on public.profiles;
 create policy "profiles_select_by_restaurant_staff" on public.profiles
   for select using (
     exists (
@@ -275,48 +289,62 @@ create policy "profiles_select_by_restaurant_staff" on public.profiles
       and public.is_restaurant_staff(o.restaurant_id)
     )
   );
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
   for update using (id = auth.uid());
 
 -- ADDRESSES: owner only
+drop policy if exists "addresses_owner_all" on public.addresses;
 create policy "addresses_owner_all" on public.addresses
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- RESTAURANTS: public read; staff can update their own restaurant
+drop policy if exists "restaurants_public_read" on public.restaurants;
 create policy "restaurants_public_read" on public.restaurants
   for select using (true);
+drop policy if exists "restaurants_staff_update" on public.restaurants;
 create policy "restaurants_staff_update" on public.restaurants
   for update using (public.is_restaurant_staff(id));
 
 -- RESTAURANT_STAFF: staff can see their own memberships
+drop policy if exists "restaurant_staff_self_read" on public.restaurant_staff;
 create policy "restaurant_staff_self_read" on public.restaurant_staff
   for select using (user_id = auth.uid());
 
 -- CATEGORIES: public read; staff write
+drop policy if exists "categories_public_read" on public.categories;
 create policy "categories_public_read" on public.categories
   for select using (true);
+drop policy if exists "categories_staff_write" on public.categories;
 create policy "categories_staff_write" on public.categories
   for all using (public.is_restaurant_staff(restaurant_id))
   with check (public.is_restaurant_staff(restaurant_id));
 
 -- DISHES: public read; staff write
+drop policy if exists "dishes_public_read" on public.dishes;
 create policy "dishes_public_read" on public.dishes
   for select using (true);
+drop policy if exists "dishes_staff_write" on public.dishes;
 create policy "dishes_staff_write" on public.dishes
   for all using (public.is_restaurant_staff(restaurant_id))
   with check (public.is_restaurant_staff(restaurant_id));
 
 -- ORDERS: customers see/create their own; staff see/update orders for their restaurant
+drop policy if exists "orders_customer_read" on public.orders;
 create policy "orders_customer_read" on public.orders
   for select using (customer_id = auth.uid());
+drop policy if exists "orders_customer_insert" on public.orders;
 create policy "orders_customer_insert" on public.orders
   for insert with check (customer_id = auth.uid());
+drop policy if exists "orders_staff_read" on public.orders;
 create policy "orders_staff_read" on public.orders
   for select using (public.is_restaurant_staff(restaurant_id));
+drop policy if exists "orders_staff_update" on public.orders;
 create policy "orders_staff_update" on public.orders
   for update using (public.is_restaurant_staff(restaurant_id));
 
 -- ORDER_ITEMS: visible if you can see the parent order
+drop policy if exists "order_items_read" on public.order_items;
 create policy "order_items_read" on public.order_items
   for select using (
     exists (
@@ -324,6 +352,7 @@ create policy "order_items_read" on public.order_items
       and (o.customer_id = auth.uid() or public.is_restaurant_staff(o.restaurant_id))
     )
   );
+drop policy if exists "order_items_insert" on public.order_items;
 create policy "order_items_insert" on public.order_items
   for insert with check (
     exists (
@@ -333,6 +362,7 @@ create policy "order_items_insert" on public.order_items
   );
 
 -- ORDER_STATUS_EVENTS: same visibility as orders
+drop policy if exists "order_events_read" on public.order_status_events;
 create policy "order_events_read" on public.order_status_events
   for select using (
     exists (
@@ -343,8 +373,10 @@ create policy "order_events_read" on public.order_status_events
 
 -- REVIEWS: public read (for restaurant rating display); only the customer of a
 -- delivered order can write a review for that order.
+drop policy if exists "reviews_public_read" on public.reviews;
 create policy "reviews_public_read" on public.reviews
   for select using (true);
+drop policy if exists "reviews_customer_insert" on public.reviews;
 create policy "reviews_customer_insert" on public.reviews
   for insert with check (
     customer_id = auth.uid()
@@ -355,5 +387,6 @@ create policy "reviews_customer_insert" on public.reviews
   );
 
 -- PUSH_TOKENS: owner only
+drop policy if exists "push_tokens_owner_all" on public.push_tokens;
 create policy "push_tokens_owner_all" on public.push_tokens
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());

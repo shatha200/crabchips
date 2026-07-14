@@ -42,11 +42,13 @@ let sql = `-- AUTO-GENERATED from crabchips/src/lib/site-data.ts — do not hand
 sql += `insert into public.restaurants (id, slug, name, description, address, phone, whatsapp, instagram, maps_url, rating, review_count)\nvalues (\n  '${restaurantId}',\n  'crab-and-chips',\n  'Crab & Chips',\n  'Fruits de mer, pizzas et grillades — Tunis',\n  'Tunisie',\n  ${esc(CONTACT.whatsappNumber)},\n  ${esc(CONTACT.whatsapp)},\n  ${esc(CONTACT.instagram)},\n  ${esc(CONTACT.maps)},\n  ${CONTACT.rating},\n  ${CONTACT.reviewCount}\n)\non conflict (id) do nothing;\n\n`;
 
 MENU.forEach((cat, ci) => {
-  const catId = `00000000-0000-0000-0000-0000000${String(ci + 1).padStart(3, "0")}`;
+  // Last UUID segment must be exactly 12 hex chars.
+  const catId = `00000000-0000-0000-0000-${String(ci + 1).padStart(12, "0")}`;
   sql += `insert into public.categories (id, restaurant_id, name, sort_order)\nvalues ('${catId}', '${restaurantId}', ${esc(cat.label)}, ${ci})\non conflict (id) do nothing;\n\n`;
 
   cat.items.forEach((item, ii) => {
-    const dishId = `00000000-0000-0000-0001-${String(ci + 1).padStart(3, "0")}${String(ii + 1).padStart(3, "0")}`;
+    // Encode (category, item) as a single number so it stays unique and fits in 12 hex chars.
+    const dishId = `00000000-0000-0000-0001-${String((ci + 1) * 1000 + (ii + 1)).padStart(12, "0")}`;
     sql += `insert into public.dishes (id, restaurant_id, category_id, name, name_ar, description, price, is_available)\nvalues ('${dishId}', '${restaurantId}', '${catId}', ${esc(item.name)}, ${esc(item.ar)}, ${esc(item.desc)}, ${item.price}, true)\non conflict (id) do nothing;\n\n`;
   });
 });

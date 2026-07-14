@@ -1,5 +1,4 @@
 import "react-native-url-polyfill/auto";
-import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { createClient, processLock } from "@supabase/supabase-js";
@@ -8,16 +7,14 @@ import Constants from "expo-constants";
 // SecureStore has a 2KB value limit and no bulk API, so we use it only for the
 // auth token (small), and fall back to AsyncStorage for anything larger.
 // This gives us secure token storage without hitting SecureStore's size limit.
-// On web, expo-secure-store isn't available at all, so we use AsyncStorage
-// (which is backed by localStorage on web) for the whole auth flow there.
-const SecureStorageAdapter =
-  Platform.OS === "web"
-    ? AsyncStorage
-    : {
-        getItem: (key: string) => SecureStore.getItemAsync(key),
-        setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-        removeItem: (key: string) => SecureStore.deleteItemAsync(key),
-      };
+// (Native only — see supabase.web.ts for the web build, which can't import
+// expo-secure-store at all: it calls requireNativeModule at import time,
+// which crashes immediately on web.)
+const SecureStorageAdapter = {
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+};
 
 const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl as string;
 const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey as string;
